@@ -1,0 +1,11 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: each row of samples.tsv represents a SRA accession number
+
+properties:
+    sample_ID:
+        type: string
+        description: sample SRA accession number
+
+required:
+    - sample_ID

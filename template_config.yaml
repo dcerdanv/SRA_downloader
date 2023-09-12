@@ -1,0 +1,47 @@
+# path or URL to sample sheet
+samples: samples.tsv
+
+# path to the results directory
+outdir: 'results'
+
+# path to the logs directory
+logdir: 'logs'
+
+# path to the temp directory for fasterq-dump
+tmpdir: 'tmp'
+
+
+parameters:
+    compress: True
+    remove_sra : False
+    prefetch_options: ""
+    validate_options: ""
+    dump_fastq_options: "--concatenate-reads --include-technical"
+    pigz_options: ""
+
+
+resources:
+    default:
+        threads: 1
+        mem_mb:  4096
+        runtime: 10
+
+    prefetch_sra:
+        threads: 4
+        mem_mb:  40960
+        runtime: 180
+      
+    validate_sra:
+        threads: 1
+        mem_mb:  4096
+        runtime: 10
+
+    dump_fastq:
+        threads: 20
+        mem_mb:  40960
+        runtime: 180
+
+    compress_fastq:
+        threads: 20
+        mem_mb:  40960
+        runtime: 60

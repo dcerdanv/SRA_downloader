@@ -1,0 +1,86 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: snakemake configuration file
+
+type: object
+
+properties:
+    samples:
+        type: string
+    outdir: 
+        type: string
+    logdir: 
+        type: string
+    tmpdir:
+        type: string
+
+    parameters:
+        properties:
+            compress:
+                type: boolean
+            remove_sra:
+                type: boolean
+            prefetch_options:
+                type: string
+            validate_options:
+                type: string
+            dump_fastq_options:
+                type: string
+            pigz_options:
+                type: string
+    
+    resources:
+        properties:
+            default:
+                type: object
+                properties:
+                    threads:
+                        type: integer
+                    mem_mb:
+                        type: integer
+                    walltime:
+                        type: integer
+
+            prefetch_sra:
+                type: object
+                properties:
+                    threads:
+                        type: integer
+                    mem_mb:
+                        type: integer
+                    walltime:
+                        type: integer
+
+            validate_sra:
+                type: object
+                properties:
+                    threads:
+                        type: integer
+                    mem_mb:
+                        type: integer
+                    walltime:
+                        type: integer  
+
+            dump_fastq:
+                type: object
+                properties:
+                    threads:
+                        type: integer
+                    mem_mb:
+                        type: integer
+                    walltime:
+                        type: integer
+
+            compress_fastq:
+                type: object
+                properties:
+                    threads:
+                        type: integer
+                    mem_mb:
+                        type: integer
+                    walltime:
+                        type: integer
+            
+
+required:
+    - samples

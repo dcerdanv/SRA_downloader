@@ -1,0 +1,7 @@
+name: sra_downloader
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - sra-tools
+  - pigz
