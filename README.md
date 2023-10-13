@@ -1,5 +1,5 @@
 # SRA_downloader
-Small snakemake pipeline that automates SRA downloads; and extract and compresses their FASTQ files  
+Small snakemake pipeline that automates SRA objects downloads; and extract and compresses their FASTQ files  
 
 [Pipeline status](https://github.com/dcerdanv/sra_downloader/commits/main)
 
@@ -20,7 +20,7 @@ When in doubt, the default parameters were calculated to offer a good starting c
  
 ## Setup
 
-The setup of the pipeline consists of the modifying two configuration files, one sets the desired parameters and the location of the output/tmp files; and the other lists which samples you want to download.
+The setup of the pipeline consists of the modifying two configuration files, one sets the desired parameters and the location of the output, log, and tmp files; and the other lists which samples you want to download.
 A general description of these files follows. See the *Usage* section for more details.
 
 ### Configuration files
@@ -52,7 +52,12 @@ This is the pipeline configuration file, where you can tune all the available pa
 
 It also gives the user the possibility of decide whether or not they want to compress the FASTQ file or whether they want to delete the folder with the SRA object once the fasta has been dumped.
 
-> For fasterq-dump, the parameters `--concatenate-reads` and `--include-technical` are set by default. You can find more information at [sra-tools documentation](https://github.com/ncbi/sra-tools/wiki/HowTo:-fasterq-dump), including the equivalences with fastq-dump.
+>**No default parameter** has been set for **fasterq-dump**. This would be equivalent to using fastq-dump with the parameters `--split-3` and `--skip-technical`. That is:
+>```bash
+>fastq-dump SRRXXXXXX --split-3 --skip-technical
+>fasterq-dump SRRXXXXXX
+>```
+>You can find more information about fasterq-dump at [sra-tools documentation](https://github.com/ncbi/sra-tools/wiki/HowTo:-fasterq-dump), including the equivalences with fastq-dump.
 
 Rename the example file ([`template_config.yaml`](https://github.com/dcerdanv/sra_downloader/blob/main/template_config.yaml)) to `config.yaml` and edit its contents to use it during your execution.
 
@@ -68,8 +73,9 @@ Rename the example file ([`template_samples.tsv`](https://github.com/dcerdanv/sr
 
 To run the pipeline, the user can create the conda environment first, which will take some minutes.
 This step is done automatically using this command:
-
-    snakemake --use-conda --conda-create-envs-only --conda-frontend mamba
+```bash
+snakemake --use-conda --conda-create-envs-only --conda-frontend mamba
+```
 
 If the environment has not been created before, it will be created before the first execution of the pipeline. 
 
@@ -77,8 +83,9 @@ If the environment has not been created before, it will be created before the fi
 ### 5. Run the pipeline.
 
 Once the pipeline is configured the user just needs to run SRA_downloader.
-
-    snakemake --use-conda -j 10
+```bash
+snakemake --use-conda -j 10
+```
 
 The mandatory arguments are:
 * **--use-conda**: to install and use the conda environemnts.
@@ -90,24 +97,29 @@ Here you can find a general description of the main steps of the pipeline.
 
 1. **Prefetch sra (prefetch)**. Prefetch tool downloads SRA files and their dependencies.
     
-        prefetch SRR11192680
+        prefetch SRRXXXXXX
 
 2. **Validate sra (vdb-validate)**. Vdb-validate validates the integrity of downloaded SRA data.
 
-        vdb-validate SRR11192680
+        vdb-validate SRRXXXXXX
+
+    This step, like the one that removes the SRA object, will generate an empty file as a flag to confirm that the step has completed correctly. It is necessary for the pipe to works correctly, since this step does not modify or create any new file. This {sample}_validate.done file is stored in the 'flags' folder in the logs directory.
 
 3. **Dump fastq (fasterq-dump)**. The fasterq-dump tool extracts data in FASTQ or FASTA format from SRA-accessions. It allows parallelization.
 
-        fasterq-dump -v -L info --concatenate-reads --include-technical SRR11192680
+    This tool can return one or more fastq files, depending on the type of sequencing of the experiment (single-end, paired-end) or fasterq-dump's own configuration parameters. The compression tool, pigz, is prepared to deal with both situations 
+
+        fasterq-dump -v -L info SRRXXXXXX
 
 4. **Compress fastq (pigz)** *[Optional]*. Compress FASTQ sequence to gzip format. It can be enabled through the 'compress' parameter in `config.yaml`.
 
-        pigz SRR11192680.fastq
+        pigz SRRXXXXXX.fastq
 
 5. **Remove sra** *[Optional]*. Remove the SRA object folder. It can be enabled through the 'remove_sra' parameter in `config.yaml`.
 
-        rm -r SRR11192680
+        rm -r SRRXXXXXX
 
+    This step, like the one that validates the SRA object, will generate an empty file as a flag to confirm that the step has completed correctly. It is necessary for the pipe to works correctly, since this step does not modify or create any new file. This {sample}_remove.done/{sample}_not_remove.done file is stored in the 'flags' folder in the logs directory.
 
 ## Cluster Usage
 
@@ -119,11 +131,6 @@ Although this pipeline can be launched on any machine, it is designed to be exec
 ## Configuration of computation resources
 
 The user can configure SRA_downloader to optimise the available computational resources in order to reduce the computational time. The optimization is achieved thanks to Snakemake's ability to parallelize the jobs and to assign specific resources to each rule in a simple way. Resources configuration is done through the configuration file (`config.yaml`). This file has a field called *resources*, where the user can define the RAM memory usage, the number of threads (if the rule admits multithreading) available to a specific step and the maximum execution time. Additionally, if the user does not provide any value for some of these fields, the pipeline will use the default values.
-
-
-
-
-
 ___
 
 

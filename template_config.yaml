@@ -16,7 +16,7 @@ parameters:
     remove_sra : False
     prefetch_options: ""
     validate_options: ""
-    dump_fastq_options: "--concatenate-reads --include-technical"
+    fasterq-dump_options: ""
     pigz_options: ""
 
 

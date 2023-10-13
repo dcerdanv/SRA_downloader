@@ -24,7 +24,7 @@ properties:
                 type: string
             validate_options:
                 type: string
-            dump_fastq_options:
+            fasterq-dump_options:
                 type: string
             pigz_options:
                 type: string
