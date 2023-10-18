@@ -14,8 +14,12 @@ rule prefetch_sra:
         f"{LOGDIR}/{{sample}}/{{sample}}_prefetch.log"
     conda:
         '../envs/sra_downloader.yaml'
-    shell:
-        "echo Downloading {params.sample} SRA object. > {log} 2>&1 && date >> {log} 2>&1 && prefetch --output-directory {OUTDIR} {params.extra} {params.sample} >> {log} 2>&1 && date >> {log} 2>&1"
+    shell: """
+        echo Downloading {params.sample} SRA object. > {log} 2>&1
+        date >> {log} 2>&1
+        prefetch --output-directory {OUTDIR} {params.extra} {params.sample} >> {log} 2>&1
+        date >> {log} 2>&1
+    """
 
 
 rule validate_sra:
@@ -36,8 +40,12 @@ rule validate_sra:
         f"{LOGDIR}/{{sample}}/{{sample}}_validate.log"
     conda:
         '../envs/sra_downloader.yaml'
-    shell:
-        "echo Validating {params.sample} SRA object. > {log} 2>&1 && date >> {log} 2>&1 && vdb-validate {params.extra} {input.prefetch_sra} >> {log} 2>&1 && date >> {log} 2>&1"
+    shell: """
+        echo Validating {params.sample} SRA object. > {log} 2>&1
+        date >> {log} 2>&1
+        vdb-validate {params.extra} {input.prefetch_sra} >> {log} 2>&1
+        date >> {log} 2>&1
+    """
 
 
 checkpoint dump_fastq:
@@ -59,8 +67,13 @@ checkpoint dump_fastq:
         f"{LOGDIR}/{{sample}}/{{sample}}_dump_fastq.log"
     conda:
         '../envs/sra_downloader.yaml'
-    shell:
-        "echo Extracting fastq from {params.sample}. > {log} && 2>&1 && date >> {log} 2>&1 && fasterq-dump -v -L info {params.extra} --outdir {output} --temp {TMPDIR} -e {threads} {params.sample} && echo Extraction finished. >> {log} 2>&1 && date >> {log} 2>&1"
+    shell: """
+        echo Extracting fastq from {params.sample}. > {log} 2>&1
+        date >> {log} 2>&1
+        fasterq-dump -v -L info {params.extra} --outdir {output} --temp {TMPDIR} -e {threads} {params.sample} >> {log} 2>&1
+        echo Extraction finished. >> {log} 2>&1
+        date >> {log} 2>&1
+    """
 
 
 rule move_fastq:
@@ -97,8 +110,12 @@ rule compress_fastq:
         f"{LOGDIR}/{{sample}}/{{sample_part}}_compress.log"
     conda:
         '../envs/sra_downloader.yaml'
-    shell:
-        "echo Compressing {input.fastq} to GZ format. > {log} && 2>&1  date >> {log} 2>&1 && pigz --processes {threads} {params.extra} {input.fastq} >> {log} 2>&1 && date >> {log} 2>&1"
+    shell: """
+        echo Compressing {input.fastq} to GZ format. > {log} 2>&1
+        date >> {log} 2>&1
+        pigz --processes {threads} {params.extra} {input.fastq} >> {log} 2>&1
+        date >> {log} 2>&1
+    """
 
 
 def get_remove_sra_input(wildcards):
@@ -131,8 +148,12 @@ rule remove_sra:
         fastq_dir = f"{OUTDIR}/{{sample}}/fastq",
     log:
         f"{LOGDIR}/{{sample}}/{{sample}}_remove.log"
-    shell:
-        "rm -r {params.fastq_dir} && rm -r {params.sample_sra} && echo SRA folder for sample {params.sample} removed successfully > {log} 2>&1 && date >> {log} 2>&1"
+    shell: """
+        rm -r {params.fastq_dir}
+        rm -r {params.sample_sra}
+        echo SRA folder for sample {params.sample} removed successfully > {log} 2>&1
+        date >> {log} 2>&1
+    """
 
 
 rule not_remove_sra:
