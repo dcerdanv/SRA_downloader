@@ -14,6 +14,13 @@ properties:
     tmpdir:
         type: string
 
+    protected_data:
+        properties:
+            protected:
+                type: boolean
+            ncg_file:
+                type: string
+
     parameters:
         properties:
             compress:

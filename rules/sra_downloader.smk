@@ -1,3 +1,10 @@
+def get_ngc_file():
+    if config['protected_data']['protected']:
+        return "--ngc " + config['protected_data']['ncg_file']
+    else:
+        return ""
+
+
 rule prefetch_sra:
     output:
         prefetch_sra=f"{OUTDIR}/{{sample}}/{{sample}}.sra"
@@ -9,6 +16,7 @@ rule prefetch_sra:
     params:
         sample=f"{{sample}}",
         # optional parameters
+        ngc = get_ngc_file(),
         extra=config['parameters']['prefetch_options']
     log:
         f"{LOGDIR}/{{sample}}/{{sample}}_prefetch.log"
@@ -17,7 +25,7 @@ rule prefetch_sra:
     shell: """
         echo Downloading {params.sample} SRA object. > {log} 2>&1
         date >> {log} 2>&1
-        prefetch --output-directory {OUTDIR} {params.extra} {params.sample} >> {log} 2>&1
+        prefetch {params.ngc} --output-directory {OUTDIR} {params.extra} {params.sample} >> {log} 2>&1
         date >> {log} 2>&1
     """
 
@@ -62,6 +70,7 @@ checkpoint dump_fastq:
     params:
         sample=f"{OUTDIR}/{{sample}}",
         # optional parameters
+        ngc = get_ngc_file(),
         extra=config['parameters']['fasterq-dump_options']
     log:
         f"{LOGDIR}/{{sample}}/{{sample}}_dump_fastq.log"
@@ -70,7 +79,7 @@ checkpoint dump_fastq:
     shell: """
         echo Extracting fastq from {params.sample}. > {log} 2>&1
         date >> {log} 2>&1
-        fasterq-dump -v -L info {params.extra} --outdir {output} --temp {TMPDIR} -e {threads} {params.sample} >> {log} 2>&1
+        fasterq-dump -v -L info {params.ngc} {params.extra} --outdir {output} --temp {TMPDIR} -e {threads} {params.sample} >> {log} 2>&1
         echo Extraction finished. >> {log} 2>&1
         date >> {log} 2>&1
     """

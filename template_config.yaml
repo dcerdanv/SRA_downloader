@@ -11,6 +11,11 @@ logdir: 'logs'
 tmpdir: 'tmp'
 
 
+protected_data:
+    protected: False
+    ncg_file: "path/to/my_ngc_file.ngc"
+
+
 parameters:
     compress: True
     remove_sra : False
